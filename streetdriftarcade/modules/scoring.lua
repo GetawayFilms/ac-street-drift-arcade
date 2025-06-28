@@ -1,7 +1,6 @@
 -- modules/scoring.lua - Scoring System and Point Calculations
 -- Save as: assettocorsa/apps/lua/streetdriftarcade/modules/scoring.lua
 
-local M = {}
 
 -- =============================================================================
 -- MAIN SCORING CALCULATION
@@ -419,5 +418,3 @@ function M.initialize()
     M.validate_scoring_state()
     utils.debug_log("Scoring module initialized with Angle Bonus System", "INIT")
 end
-
-return M
