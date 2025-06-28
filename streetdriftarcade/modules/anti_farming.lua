@@ -2,8 +2,6 @@
 -- Save as: assettocorsa/apps/lua/streetdriftarcade/modules/anti_farming.lua
 
 local M = {}
-local vars = require('modules/variables')
-local utils = require('modules/utilities')
 
 -- =============================================================================
 -- ROTATION ANALYSIS SYSTEM
