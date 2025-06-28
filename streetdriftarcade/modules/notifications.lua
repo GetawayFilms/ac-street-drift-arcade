@@ -1,8 +1,6 @@
 -- modules/notifications.lua - Queue-based Notification System with Animations
 -- Save as: assettocorsa/apps/lua/streetdriftarcade/modules/notifications.lua
 
-local M = {}
-
 -- =============================================================================
 -- NOTIFICATION QUEUE SYSTEM
 -- =============================================================================
@@ -34,7 +32,7 @@ local ANIMATION_CONFIG = {
 -- =============================================================================
 
 -- Add notification to queue
-function M.add_notification(text, duration, priority)
+function add_notification(text, duration, priority)
     local notification = {
         text = text,
         duration = duration or ANIMATION_CONFIG.display_duration,
@@ -61,7 +59,7 @@ function M.add_notification(text, duration, priority)
 end
 
 -- Get next notification from queue
-local function get_next_notification()
+function get_next_notification()
     if #notification_queue > 0 then
         return table.remove(notification_queue, 1)
     end
@@ -69,7 +67,7 @@ local function get_next_notification()
 end
 
 -- Clear all notifications (emergency clear)
-function M.clear_all_notifications()
+function clear_all_notifications()
     notification_queue = {}
     current_notification = nil
     animation_state = "idle"
@@ -82,20 +80,20 @@ end
 -- =============================================================================
 
 -- Easing functions for smooth animations
-local function ease_out_back(t)
+function ease_out_back(t)
     local c1 = 1.70158
     local c3 = c1 + 1
     return 1 + c3 * math.pow(t - 1, 3) + c1 * math.pow(t - 1, 2)
 end
 
-local function ease_in_back(t)
+function ease_in_back(t)
     local c1 = 1.70158
     local c3 = c1 + 1
     return c3 * t * t * t - c1 * t * t
 end
 
 -- Calculate current animation values
-local function get_animation_values()
+function get_animation_values()
     local scale = 1.0
     local alpha = 1.0
     local y_offset = 0.0
@@ -144,7 +142,7 @@ end
 -- =============================================================================
 
 -- Update notification system
-function M.update(dt)
+function update(dt)
     if animation_state == "idle" then
         -- Try to start next notification
         if #notification_queue > 0 then
@@ -189,7 +187,7 @@ end
 -- =============================================================================
 
 -- Get current notification for rendering
-function M.get_current_notification()
+function get_current_notification()
     if not current_notification or animation_state == "idle" then
         return nil
     end
@@ -206,12 +204,12 @@ function M.get_current_notification()
 end
 
 -- Check if notification system is active
-function M.is_active()
+function is_active()
     return current_notification ~= nil or #notification_queue > 0
 end
 
 -- Get queue status for debugging
-function M.get_queue_status()
+function get_queue_status()
     return {
         queue_length = #notification_queue,
         current_state = animation_state,
@@ -225,19 +223,19 @@ end
 -- =============================================================================
 
 -- Quick notification (normal priority)
-function M.show(text, duration)
-    M.add_notification(text, duration, 1)
+function show(text, duration)
+    add_notification(text, duration, 1)
 end
 
 -- High priority notification (shows first)
-function M.show_priority(text, duration)
-    M.add_notification(text, duration, 10)
+function show_priority(text, duration)
+    add_notification(text, duration, 10)
 end
 
 -- Ultra high priority (emergency, clears queue)
-function M.show_urgent(text, duration)
-    M.clear_all_notifications()
-    M.add_notification(text, duration, 100)
+function show_urgent(text, duration)
+    clear_all_notifications()
+    add_notification(text, duration, 100)
 end
 
 -- =============================================================================
@@ -245,15 +243,15 @@ end
 -- =============================================================================
 
 -- Legacy function for backward compatibility
-function M.set_notification(text, duration)
-    M.show(text, duration)
+function set_notification(text, duration)
+    show(text, duration)
 end
 
 -- =============================================================================
 -- MODULE INITIALIZATION
 -- =============================================================================
 
-function M.initialize()
+function initialize()
     notification_queue = {}
     current_notification = nil
     animation_state = "idle"
@@ -261,5 +259,3 @@ function M.initialize()
     
     utils.debug_log("Notification queue system initialized with smooth animations", "INIT")
 end
-
-return M
