@@ -1,4 +1,4 @@
-package.add('modules')
+-- Version 2 test
 -- streetdriftarcade.lua - UPDATED with proportional scaling integration
 -- Save as: assettocorsa/apps/lua/streetdriftarcade/streetdriftarcade.lua
 
