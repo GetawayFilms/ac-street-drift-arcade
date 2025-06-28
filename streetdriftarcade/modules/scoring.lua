@@ -2,8 +2,6 @@
 -- Save as: assettocorsa/apps/lua/streetdriftarcade/modules/scoring.lua
 
 local M = {}
-local vars = require('modules/variables')
-local utils = require('modules/utilities')
 
 -- =============================================================================
 -- MAIN SCORING CALCULATION
