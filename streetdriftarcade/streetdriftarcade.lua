@@ -86,7 +86,7 @@ end
 
 function script.update(dt)
     -- Update animation timers
-    display.update_animations(dt)
+    update_animations(dt)
     
     -- Update pulse and notification timers
     utilities.update_timers(dt)
