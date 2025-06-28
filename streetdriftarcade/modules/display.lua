@@ -93,7 +93,7 @@ local ui_config = {}
 local current_scale_factor = 1.0
 
 -- Calculate scaling factor based on screen resolution
-local function calculate_scale_factor(screen_width, screen_height)
+function calculate_scale_factor(screen_width, screen_height)
     -- Use the smaller dimension to ensure UI fits on screen
     local width_ratio = screen_width / REFERENCE_WIDTH
     local height_ratio = screen_height / REFERENCE_HEIGHT
@@ -108,7 +108,7 @@ local function calculate_scale_factor(screen_width, screen_height)
 end
 
 -- Apply scaling to all UI configuration values
-local function apply_scaling(scale_factor)
+function apply_scaling(scale_factor)
     current_scale_factor = scale_factor
     
     -- Scale all size values
@@ -141,7 +141,7 @@ end
 -- =============================================================================
 
 -- Calculate scaled positions based on screen size
-local function get_scaled_positions(screen_width, screen_height)
+function get_scaled_positions(screen_width, screen_height)
     local scale = current_scale_factor
     
     return {
@@ -163,7 +163,7 @@ end
 -- =============================================================================
 
 -- Helper function to draw text with scaled shadow
-local function draw_text_with_shadow(font, text, size, position, color, shadow_offset)
+function draw_text_with_shadow(font, text, size, position, color, shadow_offset)
     shadow_offset = shadow_offset or math.max(1, 2 * current_scale_factor)
     local shadow_color = rgbm(0, 0, 0, 0.6)
     
@@ -179,7 +179,7 @@ local function draw_text_with_shadow(font, text, size, position, color, shadow_o
 end
 
 -- Helper function to get perfectly centered X position for text
-local function get_centered_x_position(text, font, size, screen_width, center_offset)
+function get_centered_x_position(text, font, size, screen_width, center_offset)
     center_offset = center_offset or 0
     
     ui.pushDWriteFont(font)
@@ -190,7 +190,7 @@ local function get_centered_x_position(text, font, size, screen_width, center_of
 end
 
 -- Clean notification text by removing point values
-local function clean_notification_text(notification_text)
+function clean_notification_text(notification_text)
     if not notification_text or notification_text == "" then
         return ""
     end
@@ -215,7 +215,7 @@ function update_animations(dt)
 end
 
 -- TOP-LEFT: Total Points (with individual positioning controls)
-local function render_top_left_total_points(screen_width, screen_height)
+function render_top_left_total_points(screen_width, screen_height)
     local positions = get_scaled_positions(screen_width, screen_height)
     local pos = positions.top_left
     
@@ -323,7 +323,7 @@ local function render_top_left_total_points(screen_width, screen_height)
 end
 
 -- TOP-CENTER: Notifications and Angle Bonus System (FIXED CENTERING & VERTICAL)
-local function render_top_center_notifications(screen_width, screen_height)
+function render_top_center_notifications(screen_width, screen_height)
     -- Calculate position with proper scaling
     local center_x = screen_width / 2 + (ui_config.notification_center_offset or 0)
     local pos_y = ui_config.notification_y_position or (50 * current_scale_factor)
@@ -371,7 +371,7 @@ local function render_top_center_notifications(screen_width, screen_height)
 end
 
 -- BOTTOM-LEFT: Personal Records (with individual positioning controls)
-local function render_bottom_left_records(screen_width, screen_height)
+function render_bottom_left_records(screen_width, screen_height)
     -- Calculate position directly from base config (like we do for top-center)
     local pos = vec2(ui_config.bottom_left_x_position, screen_height - ui_config.bottom_left_y_from_bottom)
     local shadow_offset = math.max(1, 3 * current_scale_factor)
@@ -450,7 +450,7 @@ local function render_bottom_left_records(screen_width, screen_height)
 end
 
 -- BOTTOM-RIGHT: Status Information (with individual positioning controls)
-local function render_bottom_right_status(screen_width, screen_height)
+function render_bottom_right_status(screen_width, screen_height)
     -- Calculate position directly from base config (like we do for top-center)
     local pos = vec2(screen_width - ui_config.bottom_right_x_from_right, screen_height - ui_config.bottom_right_y_from_bottom)
     local shadow_offset = math.max(1, 3 * current_scale_factor)
