@@ -2,8 +2,6 @@
 -- Save as: assettocorsa/apps/lua/streetdriftarcade/modules/records.lua
 
 local M = {}
-local vars = require('modules/variables')
-local utils = require('modules/utilities')
 
 -- =============================================================================
 -- PERSONAL BEST TRACKING
