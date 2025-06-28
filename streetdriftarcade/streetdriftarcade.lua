@@ -1,30 +1,24 @@
 -- Version 0.8
 -- streetdriftarcade.lua - UPDATED with proportional scaling integration
 -- Save as: assettocorsa/apps/lua/streetdriftarcade/streetdriftarcade.lua
-ac.log("Trying to preload variables...")
+ac.log("Trying to read variables.lua with CSP...")
 
--- First, let's see if we can access the variables file content directly
--- If CSP downloaded it, maybe we can load it as a string
-local variables_code = [[
--- Put your entire variables.lua content here as a string
--- We'll test if this approach works
-return {
-    test = "this is from preloaded variables"
+-- Test different CSP file reading methods
+local methods = {
+    function() return ac.readFile('variables.lua') end,
+    function() return io.load('variables.lua') end,
+    function() return ac.loadFile('variables.lua') end,
 }
-]]
 
--- Load it into package.preload
-package.preload['variables'] = function()
-    return load(variables_code)()
-end
-
--- Now test if require works
-local success, vars = pcall(require, 'variables')
-if success then
-    ac.log("SUCCESS: Preload approach worked!")
-    ac.log("Test value: " .. tostring(vars.test))
-else
-    ac.log("FAILED: Preload approach failed: " .. tostring(vars))
+for i, method in ipairs(methods) do
+    local success, content = pcall(method)
+    if success and content then
+        ac.log("SUCCESS with method " .. i .. ": Found variables.lua content!")
+        ac.log("Content preview: " .. string.sub(content, 1, 100) .. "...")
+        break
+    else
+        ac.log("Method " .. i .. " failed: " .. tostring(content))
+    end
 end
 
 local vars = require('variables')
