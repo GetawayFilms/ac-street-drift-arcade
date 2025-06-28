@@ -1,9 +1,11 @@
--- Version 0.4
+-- Version 0.5
 -- streetdriftarcade.lua - UPDATED with proportional scaling integration
 -- Save as: assettocorsa/apps/lua/streetdriftarcade/streetdriftarcade.lua
-local script_path = debug.getinfo(1, "S").source:sub(2)
-local script_dir = script_path:match("(.*[/\\])") or "./"
-package.path = script_dir .. "?.lua;" .. package.path
+ac.log("Current working directory files:")
+for file in io.popen("dir"):lines() do
+    ac.log(file)
+end
+ac.log("Package path: " .. package.path)
 
 local vars = require('variables')
 local utilities = require('modules/utilities')
