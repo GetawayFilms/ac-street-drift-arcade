@@ -2,7 +2,6 @@
 -- Save as: assettocorsa/apps/lua/streetdriftarcade/modules/utilities.lua
 
 local M = {}
-local vars = require('modules/variables')
 
 -- =============================================================================
 -- NUMBER FORMATTING
