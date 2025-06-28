@@ -2,7 +2,6 @@
 -- Save as: assettocorsa/apps/lua/streetdriftarcade/modules/resolution.lua
 
 local M = {}
-local vars = require('modules/variables')
 
 -- =============================================================================
 -- ENHANCED DETECTION VARIABLES
