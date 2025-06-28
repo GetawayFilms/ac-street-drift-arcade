@@ -19,12 +19,11 @@ if appdata then
     table.insert(possible_paths, appdata .. "/?.lua")
 end
 
--- Build LUA_PATH string
-local lua_path = table.concat(possible_paths, ";")
-os.setenv("LUA_PATH", lua_path)
+-- Build the path string and add to package.path
+local new_paths = table.concat(possible_paths, ";")
+package.path = new_paths .. ";" .. package.path
 
-ac.log("Set LUA_PATH to: " .. lua_path)
-
+ac.log("Set package.path to: " .. package.path)
 
 local vars = require('variables')
 local utilities = require('modules/utilities')
