@@ -1,25 +1,31 @@
 -- Version 0.6
 -- streetdriftarcade.lua - UPDATED with proportional scaling integration
 -- Save as: assettocorsa/apps/lua/streetdriftarcade/streetdriftarcade.lua
-ac.log("Package path: " .. package.path)
-ac.log("Testing file access...")
+local cache_locations = {
+    "variables.lua",  -- current dir (we know this fails)
+    "../variables.lua", -- parent dir
+    "../../variables.lua", -- grandparent
+    "/temp/variables.lua", -- temp folder
+    "C:/temp/variables.lua", -- temp folder full path
+    "extension/variables.lua", -- extension folder
+    "../extension/variables.lua", -- relative extension
+}
 
--- Try to open your variables file in different ways
-local test1 = io.open("variables.lua", "r")
-if test1 then
-    ac.log("Found variables.lua in current directory")
-    test1:close()
-else
-    ac.log("variables.lua NOT found in current directory")
-end
-
--- Test if we can see any files at all
-local test2 = io.open("streetdriftarcade.lua", "r")
-if test2 then
-    ac.log("Can see main script file")
-    test2:close()
-else
-    ac.log("Cannot see main script file")
+for i, path in ipairs(cache_locations) do
+    local test = io.open(path, "r")
+    if test then
+        ac.log("FOUND variables.lua at: " .. path)
+        test:close()
+        -- Try to fix package path with this location
+        local dir = path:match("(.*/)")
+        if dir then
+            package.path = dir .. "?.lua;" .. package.path
+            ac.log("Updated package.path to include: " .. dir)
+        end
+        break
+    else
+        ac.log("NOT found at: " .. path)
+    end
 end
 
 local vars = require('variables')
