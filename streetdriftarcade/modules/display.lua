@@ -214,6 +214,10 @@ function update_animations(dt)
     end
 end
 
+end
+
+ac.log("🔍 update_animations function created: " .. tostring(update_animations))
+
 -- TOP-LEFT: Total Points (with individual positioning controls)
 function render_top_left_total_points(screen_width, screen_height)
     local positions = get_scaled_positions(screen_width, screen_height)
