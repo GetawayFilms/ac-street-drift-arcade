@@ -2,8 +2,6 @@
 -- Save as: assettocorsa/apps/lua/streetdriftarcade/modules/detection.lua
 
 local M = {}
-local vars = require('modules/variables')
-local utils = require('modules/utilities')
 
 -- =============================================================================
 -- ANGLE BONUS SYSTEM FUNCTIONS
