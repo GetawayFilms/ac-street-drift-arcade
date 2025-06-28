@@ -1,4 +1,4 @@
--- Version 0.7
+-- Version 0.8
 -- streetdriftarcade.lua - UPDATED with proportional scaling integration
 -- Save as: assettocorsa/apps/lua/streetdriftarcade/streetdriftarcade.lua
 local http = require('socket.http')  -- This might not work in CSP
