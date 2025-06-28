@@ -1,14 +1,13 @@
 -- modules/anti_farming.lua - Enhanced Anti-Farming with False Positive Prevention
 -- Save as: assettocorsa/apps/lua/streetdriftarcade/modules/anti_farming.lua
 
-local M = {}
 
 -- =============================================================================
 -- ROTATION ANALYSIS SYSTEM
 -- =============================================================================
 
 -- Add rotation sample to circular buffer for analysis
-function M.add_rotation_sample(car_angular_velocity)
+function add_rotation_sample(car_angular_velocity)
     if not car_angular_velocity then return end
     
     -- Store sample in circular buffer
@@ -40,7 +39,7 @@ function M.add_rotation_sample(car_angular_velocity)
 end
 
 -- Calculate rotation variance to detect repetitive patterns
-function M.calculate_rotation_variance()
+function calculate_rotation_variance()
     if #vars.rotation_samples < vars.max_rotation_samples then
         return 1.0  -- Not enough data, assume varied rotation
     end
@@ -67,7 +66,7 @@ end
 -- =============================================================================
 
 -- Add position sample and analyze movement patterns
-function M.add_position_sample(car_position, current_speed)
+function add_position_sample(car_position, current_speed)
     if not car_position then return end
     
     -- Store position sample in circular buffer
@@ -92,7 +91,7 @@ function M.add_position_sample(car_position, current_speed)
 end
 
 -- Analyze track progress to distinguish legitimate drifting from farming
-function M.analyze_track_progress()
+function analyze_track_progress()
     if #vars.position_samples < vars.max_position_samples then
         return {
             distance_traveled = 1000,  -- Assume progress if not enough data
@@ -112,10 +111,10 @@ function M.analyze_track_progress()
     local elevation_change = math.abs((newest_pos.y or 0) - (oldest_pos.y or 0))
     
     -- Calculate total path distance (more accurate for winding tracks)
-    local total_path_distance = M.calculate_path_distance()
+    local total_path_distance = calculate_path_distance()
     
     -- Calculate speed variance (indicates track progression vs. constant farming)
-    local speed_variance = M.calculate_speed_variance()
+    local speed_variance = calculate_speed_variance()
     
     -- Determine if car is making legitimate track progress
     local is_progressing = (total_path_distance > vars.distance_traveled_threshold) or 
@@ -123,7 +122,7 @@ function M.analyze_track_progress()
                           (speed_variance > vars.speed_variance_threshold)
     
     -- Determine analysis confidence based on data quality
-    local analysis_confidence = M.determine_analysis_confidence(total_path_distance, elevation_change, speed_variance)
+    local analysis_confidence = determine_analysis_confidence(total_path_distance, elevation_change, speed_variance)
     
     return {
         distance_traveled = total_path_distance,
@@ -137,7 +136,7 @@ function M.analyze_track_progress()
 end
 
 -- Calculate total path distance by summing incremental movements
-function M.calculate_path_distance()
+function calculate_path_distance()
     local total_path_distance = 0
     
     for i = 1, #vars.position_samples - 1 do
@@ -152,7 +151,7 @@ function M.calculate_path_distance()
 end
 
 -- Calculate speed variance to detect track progression patterns
-function M.calculate_speed_variance()
+function calculate_speed_variance()
     if #vars.speed_variance_samples < vars.max_speed_samples then
         return 100  -- Assume high variance if not enough data
     end
@@ -174,7 +173,7 @@ function M.calculate_speed_variance()
 end
 
 -- Determine confidence level in the analysis
-function M.determine_analysis_confidence(distance, elevation, speed_var)
+function determine_analysis_confidence(distance, elevation, speed_var)
     local confidence_score = 0
     
     -- High confidence indicators
@@ -201,17 +200,17 @@ end
 -- =============================================================================
 
 -- Main farming detection with false positive prevention
-function M.detect_intelligent_farming()
+function detect_intelligent_farming()
     if vars.total_drift_time < vars.farming_detection_delay then
         return false  -- Too early to detect farming
     end
     
     -- Analyze rotation patterns
-    local rotation_variance = M.calculate_rotation_variance()
+    local rotation_variance = calculate_rotation_variance()
     local time_since_significant_rotation = os.clock() - vars.last_significant_rotation_time
     
     -- Analyze track progression
-    local progress_data = M.analyze_track_progress()
+    local progress_data = analyze_track_progress()
     
     -- Original farming indicators
     local is_repetitive = rotation_variance < vars.rotation_variance_threshold
@@ -242,26 +241,26 @@ end
 -- =============================================================================
 
 -- Update anti-farming system (main entry point)
-function M.update_anti_farming(car_angular_velocity, car_position, speed, dt)
+function update_anti_farming(car_angular_velocity, car_position, speed, dt)
     if not vars.is_drifting then return end
     
     -- Add samples for analysis
-    M.add_rotation_sample(car_angular_velocity)
-    M.add_position_sample(car_position, speed)
+    add_rotation_sample(car_angular_velocity)
+    add_position_sample(car_position, speed)
     
     -- Check for farming using intelligent analysis
-    local is_farming_detected = M.detect_intelligent_farming()
+    local is_farming_detected = detect_intelligent_farming()
     
     -- Handle farming state changes
     if is_farming_detected and not vars.is_farming then
-        M.start_farming_penalty()
+        start_farming_penalty()
     elseif not is_farming_detected and vars.is_farming then
-        M.check_farming_end()
+        check_farming_end()
     end
 end
 
 -- Start farming penalty - ONLY LOG WHEN FARMING IS DETECTED
-function M.start_farming_penalty()
+function start_farming_penalty()
     vars.is_farming = true
     utils.set_notification("STOP FARMING!")
     
@@ -270,9 +269,9 @@ function M.start_farming_penalty()
 end
 
 -- Check if farming should end - ONLY LOG WHEN FARMING ENDS
-function M.check_farming_end()
-    local variance = M.calculate_rotation_variance()
-    local progress_data = M.analyze_track_progress()
+function check_farming_end()
+    local variance = calculate_rotation_variance()
+    local progress_data = analyze_track_progress()
     
     -- End farming if rotation becomes varied OR legitimate progress is detected
     if variance > vars.rotation_variance_threshold * 1.5 or progress_data.is_progressing then
@@ -286,7 +285,7 @@ end
 -- =============================================================================
 
 -- Get comprehensive farming analysis for debugging/display
-function M.get_farming_analysis()
+function get_farming_analysis()
     if not vars.is_drifting then
         return {
             status = "NOT_DRIFTING",
@@ -294,8 +293,8 @@ function M.get_farming_analysis()
         }
     end
     
-    local rotation_variance = M.calculate_rotation_variance()
-    local progress_data = M.analyze_track_progress()
+    local rotation_variance = calculate_rotation_variance()
+    local progress_data = analyze_track_progress()
     local time_since_significant = os.clock() - vars.last_significant_rotation_time
     
     return {
@@ -322,8 +321,8 @@ function M.get_farming_analysis()
 end
 
 -- Get farming statistics summary for display
-function M.get_farming_stats_summary()
-    local analysis = M.get_farming_analysis()
+function get_farming_stats_summary()
+    local analysis = get_farming_analysis()
     if not analysis.analysis_available then
         return "No analysis data available"
     end
@@ -340,7 +339,7 @@ end
 -- =============================================================================
 
 -- Adjust farming detection sensitivity
-function M.adjust_sensitivity(sensitivity_level)
+function adjust_sensitivity(sensitivity_level)
     if sensitivity_level == "strict" then
         vars.rotation_variance_threshold = 0.08  -- More sensitive
         vars.farming_detection_delay = 3.0
@@ -362,7 +361,7 @@ function M.adjust_sensitivity(sensitivity_level)
 end
 
 -- Get current detection configuration
-function M.get_detection_config()
+function get_detection_config()
     return {
         rotation_variance_threshold = vars.rotation_variance_threshold,
         farming_detection_delay = vars.farming_detection_delay,
@@ -379,8 +378,8 @@ end
 -- =============================================================================
 
 -- Test specific scenarios that should NOT be flagged as farming
-function M.test_scenario_detection(scenario_name)
-    local analysis = M.get_farming_analysis()
+function test_scenario_detection(scenario_name)
+    local analysis = get_farming_analysis()
     if not analysis.analysis_available then
         return "No data to test"
     end
@@ -422,11 +421,9 @@ end
 -- MODULE INITIALIZATION
 -- =============================================================================
 
-function M.initialize()
+function initialize()
     -- Initialize timing
     vars.last_significant_rotation_time = os.clock()
     
     utils.debug_log("Anti-farming module initialized with intelligent false positive prevention", "INIT")
 end
-
-return M
