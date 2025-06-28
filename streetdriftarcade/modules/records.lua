@@ -1,20 +1,18 @@
 -- modules/records.lua - Personal Best Tracking and File I/O
 -- Save as: assettocorsa/apps/lua/streetdriftarcade/modules/records.lua
 
-local M = {}
-
 -- =============================================================================
 -- PERSONAL BEST TRACKING
 -- =============================================================================
 
 -- Check if current segment qualifies as a Pure Skill record
-function M.check_pure_skill_record(segment_points)
+function check_pure_skill_record(segment_points)
     if segment_points > vars.all_time_best_pure_drift then
         local old_record = vars.all_time_best_pure_drift
         vars.all_time_best_pure_drift = segment_points
         vars.pb_drift_animation_timer = vars.pb_animation_duration
         
-        M.save_personal_bests()
+        save_personal_bests()
         
         utils.debug_log(string.format("🏆 NEW PURE SKILL RECORD! %s (was %s)", 
                         utils.format_number(segment_points), 
@@ -26,13 +24,13 @@ function M.check_pure_skill_record(segment_points)
 end
 
 -- Check if current final score qualifies as a Best Run record
-function M.check_final_score_record(final_score)
+function check_final_score_record(final_score)
     if final_score > vars.all_time_best_final_score then
         local old_record = vars.all_time_best_final_score
         vars.all_time_best_final_score = final_score
         vars.pb_final_animation_timer = vars.pb_animation_duration
         
-        M.save_personal_bests()
+        save_personal_bests()
         
         utils.debug_log(string.format("🏆 NEW BEST RUN RECORD! %s (was %s)", 
                         utils.format_number(final_score), 
@@ -44,13 +42,13 @@ function M.check_final_score_record(final_score)
 end
 
 -- Check if current total qualifies as a Best Session record
-function M.check_total_points_record(total_points)
+function check_total_points_record(total_points)
     if total_points > vars.all_time_best_total_points then
         local old_record = vars.all_time_best_total_points
         vars.all_time_best_total_points = total_points
         vars.pb_total_animation_timer = vars.pb_animation_duration
         
-        M.save_personal_bests()
+        save_personal_bests()
         
         utils.debug_log(string.format("🏆 NEW BEST SESSION RECORD! %s (was %s)", 
                         utils.format_number(total_points), 
@@ -62,11 +60,11 @@ function M.check_total_points_record(total_points)
 end
 
 -- Check all records at once (used when drift ends)
-function M.check_all_records(segment_points, final_score, total_points)
+function check_all_records(segment_points, final_score, total_points)
     local records_broken = {
-        pure_skill = M.check_pure_skill_record(segment_points),
-        final_score = M.check_final_score_record(final_score),
-        total_points = M.check_total_points_record(total_points)
+        pure_skill = check_pure_skill_record(segment_points),
+        final_score = check_final_score_record(final_score),
+        total_points = check_total_points_record(total_points)
     }
     
     -- Log summary if any records were broken
@@ -87,7 +85,7 @@ end
 -- =============================================================================
 
 -- Get live pure skill display info (for real-time UI updates)
-function M.get_live_pure_skill_info()
+function get_live_pure_skill_info()
     local display_text = utils.format_number(vars.all_time_best_pure_drift)
     local display_color = {r=0.8, g=0.8, b=1, a=1}  -- Default blue
     local is_live_record = false
@@ -119,7 +117,7 @@ end
 -- =============================================================================
 
 -- Get comprehensive record statistics
-function M.get_record_statistics()
+function get_record_statistics()
     return {
         pure_skill = {
             value = vars.all_time_best_pure_drift,
@@ -146,7 +144,7 @@ function M.get_record_statistics()
 end
 
 -- Calculate record progression (how close current values are to records)
-function M.get_record_progression()
+function get_record_progression()
     local progression = {}
     
     -- Pure Skill progression
@@ -189,7 +187,7 @@ end
 -- =============================================================================
 
 -- Save personal bests to JSON file
-function M.save_personal_bests()
+function save_personal_bests()
     local json_content = string.format(
         '{\n  "all_time_best_pure_drift": %d,\n  "all_time_best_final_score": %d,\n  "all_time_best_total_points": %d,\n  "last_updated": "%.0f"\n}',
         math.floor(vars.all_time_best_pure_drift),
@@ -218,7 +216,7 @@ function M.save_personal_bests()
 end
 
 -- Load personal bests from JSON file
-function M.load_personal_bests()
+function load_personal_bests()
     vars.debug_info = "Testing file I/O..."
     
     -- Set defaults first
@@ -265,7 +263,7 @@ function M.load_personal_bests()
                 
                 -- Convert to new format if migrated
                 if not content:match('"all_time_best_pure_drift"') then
-                    M.save_personal_bests()
+                    save_personal_bests()
                     vars.debug_info = vars.debug_info .. " [CONVERTED TO NEW FORMAT]"
                 end
                 
@@ -273,12 +271,12 @@ function M.load_personal_bests()
             else
                 -- Empty file - create with defaults
                 vars.debug_info = "📄 File empty, creating new one..."
-                return M.create_default_file()
+                return create_default_file()
             end
         else
             -- No file found - create new one
             vars.debug_info = "📁 No file found, creating..."
-            return M.create_default_file()
+            return create_default_file()
         end
     end)
     
@@ -292,7 +290,7 @@ function M.load_personal_bests()
 end
 
 -- Create default records file
-function M.create_default_file()
+function create_default_file()
     local create_success = pcall(function()
         local file = io.open("drift_records.json", "w")
         if file then
@@ -314,7 +312,7 @@ end
 -- =============================================================================
 
 -- Create backup of current records
-function M.create_backup()
+function create_backup()
     local timestamp = string.format("%.0f", os.clock())
     local backup_filename = "drift_records_backup_" .. timestamp .. ".json"
     
@@ -346,9 +344,9 @@ function M.create_backup()
 end
 
 -- Reset all records (with backup)
-function M.reset_all_records()
+function reset_all_records()
     -- Create backup first
-    local backup_created = M.create_backup()
+    local backup_created = create_backup()
     
     -- Reset in-memory values
     vars.all_time_best_pure_drift = 0
@@ -356,7 +354,7 @@ function M.reset_all_records()
     vars.all_time_best_total_points = 0
     
     -- Save reset values to file
-    local save_success = M.save_personal_bests()
+    local save_success = save_personal_bests()
     
     utils.debug_log(string.format("Records reset (backup: %s, save: %s)", 
                     tostring(backup_created), tostring(save_success)), "FILE")
@@ -369,7 +367,7 @@ end
 -- =============================================================================
 
 -- Export records in human-readable format
-function M.export_records_readable()
+function export_records_readable()
     local export_content = string.format([[
 ========================================
 STREET DRIFT ARCADE - PERSONAL RECORDS
@@ -417,7 +415,7 @@ end
 -- =============================================================================
 
 -- Validate that records are reasonable (anti-cheat)
-function M.validate_records()
+function validate_records()
     local issues = {}
     local max_reasonable = 50000000  -- 50 million points
     
@@ -454,8 +452,6 @@ end
 -- MODULE INITIALIZATION
 -- =============================================================================
 
-function M.initialize()
+function initialize()
     utils.debug_log("Records module initialized", "INIT")
 end
-
-return M
