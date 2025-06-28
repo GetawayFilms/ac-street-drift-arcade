@@ -202,7 +202,7 @@ local function clean_notification_text(notification_text)
 end
 
 -- Update animation timers
-function M.update_animations(dt)
+function update_animations(dt)
     if vars.pb_drift_animation_timer > 0 then
         vars.pb_drift_animation_timer = vars.pb_drift_animation_timer - dt
     end
