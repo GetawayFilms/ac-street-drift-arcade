@@ -1,7 +1,6 @@
 -- modules/display.lua - FIXED with perfect centering and vertical control
 -- Save as: assettocorsa/apps/lua/streetdriftarcade/modules/display.lua
 
-local M = {}
 
 -- =============================================================================
 -- PROPORTIONAL SCALING SYSTEM
@@ -128,7 +127,7 @@ local function apply_scaling(scale_factor)
 end
 
 -- Initialize scaling for given screen dimensions
-function M.set_screen_dimensions(screen_width, screen_height)
+function set_screen_dimensions(screen_width, screen_height)
     local scale_factor = calculate_scale_factor(screen_width, screen_height)
     apply_scaling(scale_factor)
     
