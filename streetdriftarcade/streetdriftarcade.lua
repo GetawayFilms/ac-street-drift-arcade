@@ -12,7 +12,7 @@ for k, v in pairs(_G) do
     end
 end
 
-local vars = require('variables')
+local vars = require('./variables')
 local utilities = require('modules/utilities')
 local detection = require('modules/detection')
 local scoring = require('modules/scoring')
