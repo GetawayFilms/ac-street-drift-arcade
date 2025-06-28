@@ -1,0 +1,100 @@
+# AC Full-Screen Overlay Research Summary
+
+## Goal
+Create a full-screen overlay for Street Drift Arcade (AC Lua app) that distributes UI elements across the entire screen (notifications top-center, drift points top-left, records bottom-left, etc.) instead of using a small compact window.
+
+## What We Have
+- **Working App**: Street Drift Arcade with beautiful UI using `display.lua`
+- **Features**: Drift scoring, anti-farming, personal records, animations, shadows
+- **Current Display**: Uses `display.render_main_window(dt)` with DWrite fonts, shadows, mixed font styling
+- **Modules**: Fully modular structure (variables, utilities, detection, scoring, etc.)
+
+## What We Tried
+
+### Attempt 1: Resolution Detection + Percentage Positioning
+- **Approach**: Detect screen resolution, then position elements using percentages
+- **Methods Tried**: 
+  - `ui.beginWindow()` with massive sizes (function doesn't exist)
+  - Window measurement "cheat methods"
+  - Manifest size manipulation
+- **Result**: Resolution detection unreliable/impossible in AC Lua
+
+### Attempt 2: `script.Draw3D()` + `ui.transparentWindow()`
+- **Approach**: Use `script.Draw3D(dt)` function with `ui.transparentWindow()` for overlay
+- **Theory**: Create full-screen transparent window, position elements inside
+- **Result**: `ui.transparentWindow()` causes "ac_common" errors or doesn't render
+
+### Attempt 3: Overlay in `script.windowMain()`
+- **Approach**: Call `ui.transparentWindow()` from main window function
+- **Result**: Same ac_common errors
+
+### Attempt 4: Large Fixed Window
+- **Approach**: Make manifest window very large, render everything inside
+- **Result**: Works but loses beautiful styling, becomes resizable, not truly full-screen
+
+## Key Errors Encountered
+- `attempt to call field 'beginWindow' (a nil value)` - Function doesn't exist
+- `attempt to call field 'spacing' (a nil value)` - Use `ui.text("")` instead  
+- `attempt to call field 'beginDisabled' (a nil value)` - Function doesn't exist
+- "ac_common" errors when using `ui.transparentWindow()`
+- `<eof> expected` - Syntax errors from duplicate `end` statements
+
+## Functions That Don't Work in AC Lua
+- `ui.beginWindow()`
+- `ui.beginDisabled()` / `ui.endDisabled()`  
+- `ui.spacing()` (use `ui.text("")`)
+- `ui.transparentWindow()` (causes errors in this setup)
+
+## Functions That Do Work
+- `ui.dwriteDrawText()` - For text with custom positioning
+- `ui.pushDWriteFont()` / `ui.popDWriteFont()` - Font management
+- `ui.windowSize()` - Gets current window dimensions
+- `ui.setCursor()` - Position cursor for next element
+- Standard ImGui functions like `ui.text()`, `ui.button()`, etc.
+
+## Current Status
+- App functionality is 100% working (all drift detection, scoring, records, etc.)
+- Visual styling is beautiful when using original `display.lua`
+- Full-screen overlay capability is the missing piece
+- Need to find correct AC Lua method for true full-screen overlays
+
+## What We Need to Research
+1. **Working Examples**: Find existing AC Lua apps that do full-screen overlays
+2. **Correct Functions**: Identify the right CSP/AC functions for overlay creation
+3. **CSP Version**: Determine if specific CSP version requirements exist
+4. **Alternative Approaches**: Maybe different function names or syntax
+
+## Important Notes
+- Original app was gorgeous and fully working
+- User wants NO toggle - full-screen only
+- Elements need to be positioned at screen edges (can't be done with fixed window)
+- Resolution must be detected or overlay must adapt automatically
+- User is persistent and refuses to accept "impossible"
+
+## Next Steps
+Research how existing AC full-screen apps achieve this functionality, then implement the correct method.
+
+
+
+Golas for this session would ideally be
+
+Distributed elements across screen using full screen transparent window (notifications top-center, drift points top-left, etc.)
+
+
+Screen example below:
+
+
+[    TOP-LEFT     ]  [    TOP-CENTER    ]  [    TOP-RIGHT    ]
+Total Points (BIG)     Notifications         (future use)
+Live Drift Counter     (HUGE & flashy)
+Current angle/speed    
+
+[   MIDDLE-LEFT   ]  [   MIDDLE-CENTER  ]  [  MIDDLE-RIGHT  ]
+(future use)          (clean space)         (future use)
+
+[  BOTTOM-LEFT    ]  [  BOTTOM-CENTER   ]  [  BOTTOM-RIGHT  ]
+Personal Records      (future use)         Status Stack
+stacked nicely                            (maybe)
+
+
+
