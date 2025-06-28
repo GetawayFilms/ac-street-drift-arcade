@@ -1,18 +1,31 @@
 -- Version 0.8
 -- streetdriftarcade.lua - UPDATED with proportional scaling integration
 -- Save as: assettocorsa/apps/lua/streetdriftarcade/streetdriftarcade.lua
-ac.log("Attempting direct require...")
-local success, result = pcall(require, 'variables')
-if success then
-    ac.log("SUCCESS: Direct require worked!")
-else
-    ac.log("FAILED: Direct require error: " .. tostring(result))
+ac.log("Trying to preload variables...")
+
+-- First, let's see if we can access the variables file content directly
+-- If CSP downloaded it, maybe we can load it as a string
+local variables_code = [[
+-- Put your entire variables.lua content here as a string
+-- We'll test if this approach works
+return {
+    test = "this is from preloaded variables"
+}
+]]
+
+-- Load it into package.preload
+package.preload['variables'] = function()
+    return load(variables_code)()
 end
 
--- Also let's see what CSP thinks the current script name/path is
-ac.log("Script info:")
-ac.log("arg[0] = " .. tostring(arg and arg[0] or "nil"))
-ac.log("_G._REQUIREDNAME = " .. tostring(_G._REQUIREDNAME or "nil"))
+-- Now test if require works
+local success, vars = pcall(require, 'variables')
+if success then
+    ac.log("SUCCESS: Preload approach worked!")
+    ac.log("Test value: " .. tostring(vars.test))
+else
+    ac.log("FAILED: Preload approach failed: " .. tostring(vars))
+end
 
 local vars = require('variables')
 local utilities = require('modules/utilities')
