@@ -1,31 +1,8 @@
 -- Version 0.1
 -- streetdriftarcade.lua - UPDATED with proportional scaling integration
 -- Save as: assettocorsa/apps/lua/streetdriftarcade/streetdriftarcade.lua
-local possible_paths = {}
 
--- Add basic relative paths
-table.insert(possible_paths, "./?.lua")
-table.insert(possible_paths, "../?.lua") 
-table.insert(possible_paths, "../../?.lua")
-
--- Add environment paths if they exist
-local temp = os.getenv("TEMP")
-if temp then
-    table.insert(possible_paths, temp .. "/?.lua")
-end
-
-local appdata = os.getenv("APPDATA") 
-if appdata then
-    table.insert(possible_paths, appdata .. "/?.lua")
-end
-
--- Build the path string and add to package.path
-local new_paths = table.concat(possible_paths, ";")
-package.path = new_paths .. ";" .. package.path
-
-ac.log("Set package.path to: " .. package.path)
-
-local vars = require('variables')
+local vars = require 'variables'
 local utilities = require('modules/utilities')
 local detection = require('modules/detection')
 local scoring = require('modules/scoring')
