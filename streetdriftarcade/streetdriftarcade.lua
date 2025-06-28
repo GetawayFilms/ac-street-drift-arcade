@@ -1,3 +1,4 @@
+package.path = "./?.lua;" .. package.path
 -- Version 0.2
 -- streetdriftarcade.lua - UPDATED with proportional scaling integration
 -- Save as: assettocorsa/apps/lua/streetdriftarcade/streetdriftarcade.lua
