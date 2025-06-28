@@ -507,7 +507,7 @@ end
 -- MAIN FULL-SCREEN OVERLAY FUNCTION (Updated)
 -- =============================================================================
 
-function M.render_fullscreen_overlay(screen_width, screen_height)
+function render_fullscreen_overlay(screen_width, screen_height)
     if ui.dwriteDrawText then
         render_top_left_total_points(screen_width, screen_height)
         render_top_center_notifications(screen_width, screen_height)
@@ -534,15 +534,15 @@ end
 -- UTILITY FUNCTIONS (Simplified)
 -- =============================================================================
 
-function M.get_ui_config()
+function get_ui_config()
     return ui_config
 end
 
-function M.get_scale_factor()
+function get_scale_factor()
     return current_scale_factor
 end
 
-function M.get_scaling_info()
+function get_scaling_info()
     return {
         reference_resolution = string.format("%dx%d", REFERENCE_WIDTH, REFERENCE_HEIGHT),
         scale_factor = current_scale_factor,
@@ -554,10 +554,8 @@ function M.get_scaling_info()
     }
 end
 
-function M.initialize()
+function initialize()
     -- Initialize with default scaling (will be updated when screen size is set)
     apply_scaling(1.0)
     utils.debug_log("Display module initialized - edit notification_y_position and notification_center_offset in base_ui_config to adjust positioning", "INIT")
 end
-
-return M
