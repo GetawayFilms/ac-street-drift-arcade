@@ -7,22 +7,22 @@
 -- =============================================================================
 
 -- Calculate and apply points for the current frame
-function M.calculate_and_apply_points(dt, angle, speed)
+function calculate_and_apply_points(dt, angle, speed)
     -- ✨ ELEGANT SCORING SYSTEM! ✨
     -- Simple and beautiful: base_rate * angle * speed * time
     
     -- LOW ANGLE COMPENSATION - Boost shallow angles since extreme speeds aren't realistic
-    local angle_multiplier = M.calculate_angle_multiplier(angle)
+    local angle_multiplier = calculate_angle_multiplier(angle)
     
     -- Base points calculation
     local points_this_frame = vars.base_drift_rate * angle * speed * dt * angle_multiplier
     
     -- Apply duration bonus
-    local duration_multiplier = M.calculate_duration_bonus()
+    local duration_multiplier = calculate_duration_bonus()
     points_this_frame = points_this_frame * duration_multiplier
     
     -- Apply sweet spot bonuses
-    local sweet_spot_multiplier, consistency_bonus = M.calculate_sweet_spot_bonus(dt, angle)
+    local sweet_spot_multiplier, consistency_bonus = calculate_sweet_spot_bonus(dt, angle)
     points_this_frame = points_this_frame * sweet_spot_multiplier
     points_this_frame = points_this_frame + (consistency_bonus * dt)
     
@@ -45,7 +45,7 @@ end
 -- =============================================================================
 
 -- Calculate angle multiplier for low angle compensation
-function M.calculate_angle_multiplier(angle)
+function calculate_angle_multiplier(angle)
     -- Gradual compensation from 40° down to 10°
     if angle < 40 and angle >= 10 then
         -- Linear scaling: 1.0x at 40°, up to 2.0x at 10°
@@ -63,7 +63,7 @@ end
 -- =============================================================================
 
 -- Calculate aggressive duration bonus that starts immediately
-function M.calculate_duration_bonus()
+function calculate_duration_bonus()
     -- REBALANCED DURATION BONUS - More reasonable progression
     -- New formula: 1.0 + (time^2 / 6.25) to achieve 4x at 5 seconds
     -- Examples: 1s = 1.16x, 2s = 1.64x, 3s = 2.44x, 5s = 4.0x, 8s = 11.24x
@@ -72,7 +72,7 @@ function M.calculate_duration_bonus()
 end
 
 -- Get duration bonus info for display
-function M.get_duration_bonus_info()
+function get_duration_bonus_info()
     return {
         multiplier = vars.duration_bonus_multiplier,
         time = vars.total_drift_time,
@@ -85,7 +85,7 @@ end
 -- =============================================================================
 
 -- Calculate sweet spot bonus and update timing
-function M.calculate_sweet_spot_bonus(dt, angle)
+function calculate_sweet_spot_bonus(dt, angle)
     local multiplier = 1.0
     local consistency_bonus = 0
     
@@ -133,7 +133,7 @@ function M.calculate_sweet_spot_bonus(dt, angle)
 end
 
 -- Get sweet spot info for display
-function M.get_sweet_spot_info(angle)
+function get_sweet_spot_info(angle)
     if angle >= 37 and angle <= 43 then
         if vars.perfect_zone_time > 1.0 then
             return {
@@ -181,7 +181,7 @@ end
 -- =============================================================================
 
 -- Get angle bonus info for display
-function M.get_angle_bonus_info()
+function get_angle_bonus_info()
     return {
         enabled = vars.angle_tracking_enabled,
         current_ranges = vars.angle_range_durations,
@@ -197,7 +197,7 @@ end
 -- =============================================================================
 
 -- Get combo display information
-function M.get_combo_info()
+function get_combo_info()
     local combo_info = {
         multiplier = vars.drift_multiplier,
         text = "",
@@ -232,7 +232,7 @@ end
 -- =============================================================================
 
 -- Get smoke display information
-function M.get_smoke_info()
+function get_smoke_info()
     local smoke_info = {
         stage = vars.smoke_stage,
         display = "",
@@ -255,10 +255,10 @@ end
 -- =============================================================================
 
 -- Get comprehensive scoring statistics for display or debug
-function M.get_scoring_stats()
-    local duration_info = M.get_duration_bonus_info()
-    local combo_info = M.get_combo_info()
-    local angle_bonus_info = M.get_angle_bonus_info()
+function get_scoring_stats()
+    local duration_info = get_duration_bonus_info()
+    local combo_info = get_combo_info()
+    local angle_bonus_info = get_angle_bonus_info()
     
     return {
         current_points = vars.current_drift_points,
@@ -277,9 +277,9 @@ function M.get_scoring_stats()
 end
 
 -- Calculate theoretical maximum points per second at current state
-function M.calculate_max_points_per_second(angle, speed)
-    local angle_multiplier = M.calculate_angle_multiplier(angle)
-    local duration_multiplier = M.calculate_duration_bonus()
+function calculate_max_points_per_second(angle, speed)
+    local angle_multiplier = calculate_angle_multiplier(angle)
+    local duration_multiplier = calculate_duration_bonus()
     local sweet_spot_multiplier = vars.perfect_zone_time > 0 and 3.0 or (vars.sweet_spot_time > 0 and 1.6 or 1.0)
     
     local base_points_per_second = vars.base_drift_rate * angle * speed
@@ -293,7 +293,7 @@ end
 -- =============================================================================
 
 -- Validate that scoring variables are in reasonable ranges
-function M.validate_scoring_state()
+function validate_scoring_state()
     local issues = {}
     
     -- Check for unreasonable values
@@ -323,7 +323,7 @@ function M.validate_scoring_state()
 end
 
 -- Reset scoring variables to safe defaults
-function M.reset_scoring_variables()
+function reset_scoring_variables()
     vars.current_drift_points = 0
     vars.current_segment_points = 0
     vars.drift_multiplier = 1
@@ -347,7 +347,7 @@ end
 -- =============================================================================
 
 -- Apply scoring preset (for different difficulty levels or car types)
-function M.apply_scoring_preset(preset_name)
+function apply_scoring_preset(preset_name)
     if preset_name == "beginner" then
         vars.base_drift_rate = 1.2  -- Higher base rate
         vars.drift_threshold = 6.0  -- Lower threshold
@@ -369,7 +369,7 @@ function M.apply_scoring_preset(preset_name)
 end
 
 -- Get current scoring configuration
-function M.get_scoring_config()
+function get_scoring_config()
     return {
         base_drift_rate = vars.base_drift_rate,
         drift_threshold = vars.drift_threshold,
@@ -384,7 +384,7 @@ end
 -- =============================================================================
 
 -- Calculate score projection (what the final score would be if drift ended now)
-function M.calculate_score_projection()
+function calculate_score_projection()
     if not vars.is_drifting then
         return 0
     end
@@ -401,7 +401,7 @@ function M.calculate_score_projection()
 end
 
 -- Calculate efficiency rating (points per second of drift time)
-function M.calculate_efficiency_rating()
+function calculate_efficiency_rating()
     if vars.total_drift_time <= 0 then
         return 0
     end
@@ -413,8 +413,8 @@ end
 -- MODULE INITIALIZATION
 -- =============================================================================
 
-function M.initialize()
+function initialize()
     -- Validate initial scoring state
-    M.validate_scoring_state()
+    validate_scoring_state()
     utils.debug_log("Scoring module initialized with Angle Bonus System", "INIT")
 end
