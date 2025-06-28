@@ -1,11 +1,6 @@
 -- Version 0.8
 -- streetdriftarcade.lua - UPDATED with proportional scaling integration
 -- Save as: assettocorsa/apps/lua/streetdriftarcade/streetdriftarcade.lua
-local http = require('socket.http')  -- This might not work in CSP
-ac.log("Trying HTTP approach...")
-
--- If HTTP doesn't work, let's try a different approach
--- Check what happens when we just try to require without any path changes
 ac.log("Attempting direct require...")
 local success, result = pcall(require, 'variables')
 if success then
