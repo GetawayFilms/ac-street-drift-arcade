@@ -1,14 +1,13 @@
-package.add('modules')
 -- streetdriftarcade.lua - UPDATED with proportional scaling integration
 -- Save as: assettocorsa/apps/lua/streetdriftarcade/streetdriftarcade.lua
 
-local vars = require('variables')
-local utilities = require('utilities')
-local detection = require('detection')
-local scoring = require('scoring')
-local anti_farming = require('anti_farming')
-local records = require('records')
-local display = require('display')  -- Now handles ALL visual rendering with scaling
+local vars = require('modules/variables')
+local utilities = require('modules/utilities')
+local detection = require('modules/detection')
+local scoring = require('modules/scoring')
+local anti_farming = require('modules/anti_farming')
+local records = require('modules/records')
+local display = require('modules/display')  -- Now handles ALL visual rendering with scaling
 
 -- Full-screen overlay variables
 local screen_width = 1920  -- Default, will be detected
