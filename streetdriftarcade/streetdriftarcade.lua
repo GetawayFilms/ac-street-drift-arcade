@@ -1,4 +1,4 @@
--- Version 0.6
+-- Version 0.7
 -- streetdriftarcade.lua - UPDATED with proportional scaling integration
 -- Save as: assettocorsa/apps/lua/streetdriftarcade/streetdriftarcade.lua
 local cache_locations = {
