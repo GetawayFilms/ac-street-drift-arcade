@@ -1,16 +1,22 @@
 -- Version 0.8
 -- streetdriftarcade.lua - UPDATED with proportional scaling integration
 -- Save as: assettocorsa/apps/lua/streetdriftarcade/streetdriftarcade.lua
-_G.TEST_GLOBAL = "Hello from main script"
-ac.log("Set global variable: " .. tostring(_G.TEST_GLOBAL))
+local possible_paths = {
+    "./?.lua",  -- current directory (wherever CSP runs the script from)
+    "../?.lua", -- parent directory
+    "../../?.lua", -- grandparent
+    os.getenv("TEMP") .. "/?.lua", -- Windows temp folder
+    os.getenv("APPDATA") .. "/?.lua", -- AppData folder
+}
 
--- Try to access variables that might be set by other scripts
-ac.log("Looking for globals from other scripts...")
-for k, v in pairs(_G) do
-    if type(k) == "string" and k:find("variables") then
-        ac.log("Found potential variables global: " .. k .. " = " .. tostring(v))
-    end
-end
+-- Build LUA_PATH string
+local lua_path = table.concat(possible_paths, ";")
+os.setenv("LUA_PATH", lua_path)
+
+ac.log("Set LUA_PATH to: " .. lua_path)
+
+-- Now try require
+local vars = require('variables')
 
 local vars = require('./variables')
 local utilities = require('modules/utilities')
