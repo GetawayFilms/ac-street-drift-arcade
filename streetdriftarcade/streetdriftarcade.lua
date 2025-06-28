@@ -1,25 +1,6 @@
 -- Version 0.8
 -- streetdriftarcade.lua - UPDATED with proportional scaling integration
 -- Save as: assettocorsa/apps/lua/streetdriftarcade/streetdriftarcade.lua
-ac.log("Trying to read variables.lua with CSP...")
-
--- Test different CSP file reading methods
-local methods = {
-    function() return ac.readFile('variables.lua') end,
-    function() return io.load('variables.lua') end,
-    function() return ac.loadFile('variables.lua') end,
-}
-
-for i, method in ipairs(methods) do
-    local success, content = pcall(method)
-    if success and content then
-        ac.log("SUCCESS with method " .. i .. ": Found variables.lua content!")
-        ac.log("Content preview: " .. string.sub(content, 1, 100) .. "...")
-        break
-    else
-        ac.log("Method " .. i .. " failed: " .. tostring(content))
-    end
-end
 
 local vars = require('variables')
 local utilities = require('modules/utilities')
