@@ -1,4 +1,4 @@
--- Version 0.8
+-- Version 0.9
 -- streetdriftarcade.lua - UPDATED with proportional scaling integration
 -- Save as: assettocorsa/apps/lua/streetdriftarcade/streetdriftarcade.lua
 local possible_paths = {}
