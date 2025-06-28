@@ -1,4 +1,4 @@
--- Version 3 test
+-- Version 0.4
 -- streetdriftarcade.lua - UPDATED with proportional scaling integration
 -- Save as: assettocorsa/apps/lua/streetdriftarcade/streetdriftarcade.lua
 
