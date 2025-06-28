@@ -1,12 +1,15 @@
 -- modules/utilities.lua - Helper Functions and Utilities
 -- Save as: assettocorsa/apps/lua/streetdriftarcade/modules/utilities.lua
 
+local M = {}
+local vars = require('modules/variables')
+
 -- =============================================================================
 -- NUMBER FORMATTING
 -- =============================================================================
 
 -- Number formatting function with safety checks
-function format_number(num)
+function M.format_number(num)
     if not num or num == nil then
         return "0"
     end
@@ -37,7 +40,7 @@ end
 -- =============================================================================
 
 -- Helper function to calculate distance between two 3D points
-function calculate_distance_3d(pos1, pos2)
+function M.calculate_distance_3d(pos1, pos2)
     if not pos1 or not pos2 or not pos1.x or not pos1.z or not pos2.x or not pos2.z then
         return 0
     end
@@ -50,7 +53,7 @@ function calculate_distance_3d(pos1, pos2)
 end
 
 -- Helper function to calculate 2D distance (ignoring elevation)
-function calculate_distance_2d(pos1, pos2)
+function M.calculate_distance_2d(pos1, pos2)
     if not pos1 or not pos2 or not pos1.x or not pos1.z or not pos2.x or not pos2.z then
         return 0
     end
@@ -66,7 +69,7 @@ end
 -- =============================================================================
 
 -- Safely get car speed with error handling
-function get_safe_speed(car)
+function M.get_safe_speed(car)
     if car.speedKmh and type(car.speedKmh) == "number" then
         return car.speedKmh
     end
@@ -74,7 +77,7 @@ function get_safe_speed(car)
 end
 
 -- Safely get car RPM with error handling
-function get_safe_rpm(car)
+function M.get_safe_rpm(car)
     if car.rpm and type(car.rpm) == "number" then
         return car.rpm
     end
@@ -82,7 +85,7 @@ function get_safe_rpm(car)
 end
 
 -- Safely get car gear with error handling
-function get_safe_gear(car)
+function M.get_safe_gear(car)
     if car.gear and type(car.gear) == "number" then
         return car.gear
     end
@@ -94,7 +97,7 @@ end
 -- =============================================================================
 
 -- Update all display and notification timers
-function update_timers(dt)
+function M.update_timers(dt)
     -- Update pulse timer for flashing notifications
     vars.pulse_timer = vars.pulse_timer + dt
     if vars.pulse_timer > 0.3 then
@@ -113,7 +116,7 @@ function update_timers(dt)
 end
 
 -- Set a notification with automatic timing
-function set_notification(text, duration)
+function M.set_notification(text, duration)
     vars.notification_text = text
     vars.notification_timer = 0.0
     if duration then
@@ -128,7 +131,7 @@ end
 -- =============================================================================
 
 -- Get color based on total points for UI theming - simplified without ranking
-function get_points_color(points)
+function M.get_points_color(points)
     -- Simple color progression without ranking system
     if points >= 10000000 then
         return rgbm(0.0, 1.0, 1.0, 1.0)  -- Cyan for very high scores
@@ -140,7 +143,7 @@ function get_points_color(points)
 end
 
 -- Get notification color based on notification type
-function get_notification_color(notification_text, pulse_state)
+function M.get_notification_color(notification_text, pulse_state)
     local base_color, pulse_color
     
     -- Special colors for different notification types
@@ -169,7 +172,7 @@ end
 -- =============================================================================
 
 -- Calculate slip angle safely with error handling
-function calculate_slip_angle(car)
+function M.calculate_slip_angle(car)
     local angle = 0
     local angle_with_direction = 0
     local lateral_velocity = 0
@@ -193,7 +196,7 @@ function calculate_slip_angle(car)
 end
 
 -- Determine drift direction from angle
-function get_drift_direction(angle, angle_with_direction)
+function M.get_drift_direction(angle, angle_with_direction)
     if angle > vars.transition_threshold then
         if angle_with_direction > 0 then
             return 1  -- Right
@@ -205,7 +208,7 @@ function get_drift_direction(angle, angle_with_direction)
 end
 
 -- Get direction text for display
-function get_direction_text(angle, angle_with_direction, is_drifting)
+function M.get_direction_text(angle, angle_with_direction, is_drifting)
     local direction_threshold = is_drifting and vars.transition_threshold or 1.0
     
     if angle > direction_threshold then
@@ -234,7 +237,7 @@ end
 -- =============================================================================
 
 -- Get forward velocity safely
-function get_forward_velocity(car)
+function M.get_forward_velocity(car)
     local forward_velocity = 0
     pcall(function()
         local local_vel = car.localVelocity
@@ -246,7 +249,7 @@ function get_forward_velocity(car)
 end
 
 -- Get car angular velocity safely
-function get_car_angular_velocity(car)
+function M.get_car_angular_velocity(car)
     local car_angular_velocity = nil
     
     -- Try to get from car first
@@ -276,7 +279,7 @@ function get_car_angular_velocity(car)
             end
         end)
         
-        local speed = get_safe_speed(car)
+        local speed = M.get_safe_speed(car)
         local estimated_yaw_rate = 0
         if speed > 10 then
             estimated_yaw_rate = lateral_velocity / speed
@@ -297,21 +300,21 @@ end
 -- =============================================================================
 
 -- Check if a number is valid (not nil, not NaN, is a number)
-function is_valid_number(num)
+function M.is_valid_number(num)
     return num and type(num) == "number" and num == num
 end
 
 -- Clamp a value between min and max
-function clamp(value, min_val, max_val)
-    if not is_valid_number(value) then return min_val end
+function M.clamp(value, min_val, max_val)
+    if not M.is_valid_number(value) then return min_val end
     if value < min_val then return min_val end
     if value > max_val then return max_val end
     return value
 end
 
 -- Linear interpolation between two values
-function lerp(a, b, t)
-    t = clamp(t, 0, 1)
+function M.lerp(a, b, t)
+    t = M.clamp(t, 0, 1)
     return a + (b - a) * t
 end
 
@@ -320,22 +323,24 @@ end
 -- =============================================================================
 
 -- Log with timestamp and formatting
-function debug_log(message, category)
+function M.debug_log(message, category)
     local timestamp = string.format("%.3f", os.clock())
     local prefix = category and string.format("[%s]", category) or "[DEBUG]"
     ac.log(string.format("%s %s %s", timestamp, prefix, message))
 end
 
 -- Log car state for debugging
-function debug_car_state(car, speed, angle)
-    debug_log(string.format("Speed: %.1f km/h, Angle: %.1f°, Gear: %d, RPM: %.0f", 
-                speed, angle, get_safe_gear(car), get_safe_rpm(car)), "CAR")
+function M.debug_car_state(car, speed, angle)
+    M.debug_log(string.format("Speed: %.1f km/h, Angle: %.1f°, Gear: %d, RPM: %.0f", 
+                speed, angle, M.get_safe_gear(car), M.get_safe_rpm(car)), "CAR")
 end
 
 -- =============================================================================
 -- MODULE INITIALIZATION
 -- =============================================================================
 
-function initialize()
+function M.initialize()
     ac.log("✅ Utilities module initialized")
 end
+
+return M
