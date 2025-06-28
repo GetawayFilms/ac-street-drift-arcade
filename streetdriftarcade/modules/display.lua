@@ -2,11 +2,6 @@
 -- Save as: assettocorsa/apps/lua/streetdriftarcade/modules/display.lua
 
 local M = {}
-local vars = require('modules/variables')
-local utils = require('modules/utilities')
-local scoring = require('modules/scoring')
-local records = require('modules/records')
-local anti_farming = require('modules/anti_farming')
 
 -- =============================================================================
 -- PROPORTIONAL SCALING SYSTEM
