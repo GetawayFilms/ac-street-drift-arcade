@@ -1,11 +1,26 @@
--- Version 0.5
+-- Version 0.6
 -- streetdriftarcade.lua - UPDATED with proportional scaling integration
 -- Save as: assettocorsa/apps/lua/streetdriftarcade/streetdriftarcade.lua
-ac.log("Current working directory files:")
-for file in io.popen("dir"):lines() do
-    ac.log(file)
-end
 ac.log("Package path: " .. package.path)
+ac.log("Testing file access...")
+
+-- Try to open your variables file in different ways
+local test1 = io.open("variables.lua", "r")
+if test1 then
+    ac.log("Found variables.lua in current directory")
+    test1:close()
+else
+    ac.log("variables.lua NOT found in current directory")
+end
+
+-- Test if we can see any files at all
+local test2 = io.open("streetdriftarcade.lua", "r")
+if test2 then
+    ac.log("Can see main script file")
+    test2:close()
+else
+    ac.log("Cannot see main script file")
+end
 
 local vars = require('variables')
 local utilities = require('modules/utilities')
