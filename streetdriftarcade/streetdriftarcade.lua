@@ -1,32 +1,23 @@
 -- Version 0.7
 -- streetdriftarcade.lua - UPDATED with proportional scaling integration
 -- Save as: assettocorsa/apps/lua/streetdriftarcade/streetdriftarcade.lua
-local cache_locations = {
-    "variables.lua",  -- current dir (we know this fails)
-    "../variables.lua", -- parent dir
-    "../../variables.lua", -- grandparent
-    "/temp/variables.lua", -- temp folder
-    "C:/temp/variables.lua", -- temp folder full path
-    "extension/variables.lua", -- extension folder
-    "../extension/variables.lua", -- relative extension
-}
+local http = require('socket.http')  -- This might not work in CSP
+ac.log("Trying HTTP approach...")
 
-for i, path in ipairs(cache_locations) do
-    local test = io.open(path, "r")
-    if test then
-        ac.log("FOUND variables.lua at: " .. path)
-        test:close()
-        -- Try to fix package path with this location
-        local dir = path:match("(.*/)")
-        if dir then
-            package.path = dir .. "?.lua;" .. package.path
-            ac.log("Updated package.path to include: " .. dir)
-        end
-        break
-    else
-        ac.log("NOT found at: " .. path)
-    end
+-- If HTTP doesn't work, let's try a different approach
+-- Check what happens when we just try to require without any path changes
+ac.log("Attempting direct require...")
+local success, result = pcall(require, 'variables')
+if success then
+    ac.log("SUCCESS: Direct require worked!")
+else
+    ac.log("FAILED: Direct require error: " .. tostring(result))
 end
+
+-- Also let's see what CSP thinks the current script name/path is
+ac.log("Script info:")
+ac.log("arg[0] = " .. tostring(arg and arg[0] or "nil"))
+ac.log("_G._REQUIREDNAME = " .. tostring(_G._REQUIREDNAME or "nil"))
 
 local vars = require('variables')
 local utilities = require('modules/utilities')
