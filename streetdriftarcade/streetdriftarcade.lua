@@ -13,7 +13,7 @@ local overlay_initialized = false
 -- SCREEN DETECTION WITH SCALING
 -- =============================================================================
 
-local function detect_screen_size()
+function detect_screen_size()
     -- Try to get screen dimensions from AC
     local sim = ac.getSim()
     if sim and sim.windowWidth and sim.windowHeight then
