@@ -1,13 +1,23 @@
 -- Version 0.8
 -- streetdriftarcade.lua - UPDATED with proportional scaling integration
 -- Save as: assettocorsa/apps/lua/streetdriftarcade/streetdriftarcade.lua
-local possible_paths = {
-    "./?.lua",  -- current directory (wherever CSP runs the script from)
-    "../?.lua", -- parent directory
-    "../../?.lua", -- grandparent
-    os.getenv("TEMP") .. "/?.lua", -- Windows temp folder
-    os.getenv("APPDATA") .. "/?.lua", -- AppData folder
-}
+local possible_paths = {}
+
+-- Add basic relative paths
+table.insert(possible_paths, "./?.lua")
+table.insert(possible_paths, "../?.lua") 
+table.insert(possible_paths, "../../?.lua")
+
+-- Add environment paths if they exist
+local temp = os.getenv("TEMP")
+if temp then
+    table.insert(possible_paths, temp .. "/?.lua")
+end
+
+local appdata = os.getenv("APPDATA") 
+if appdata then
+    table.insert(possible_paths, appdata .. "/?.lua")
+end
 
 -- Build LUA_PATH string
 local lua_path = table.concat(possible_paths, ";")
@@ -15,10 +25,8 @@ os.setenv("LUA_PATH", lua_path)
 
 ac.log("Set LUA_PATH to: " .. lua_path)
 
--- Now try require
-local vars = require('variables')
 
-local vars = require('./variables')
+local vars = require('variables')
 local utilities = require('modules/utilities')
 local detection = require('modules/detection')
 local scoring = require('modules/scoring')
