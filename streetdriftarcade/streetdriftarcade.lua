@@ -2,7 +2,7 @@
 -- streetdriftarcade.lua - UPDATED with proportional scaling integration
 -- Save as: assettocorsa/apps/lua/streetdriftarcade/streetdriftarcade.lua
 
-local vars = require('modules/variables')
+local vars = require('variables')
 local utilities = require('modules/utilities')
 local detection = require('modules/detection')
 local scoring = require('modules/scoring')
