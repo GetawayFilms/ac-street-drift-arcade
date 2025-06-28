@@ -1,12 +1,16 @@
 -- modules/detection.lua - Physics Detection Systems
 -- Save as: assettocorsa/apps/lua/streetdriftarcade/modules/detection.lua
 
+local M = {}
+local vars = require('modules/variables')
+local utils = require('modules/utilities')
+
 -- =============================================================================
 -- ANGLE BONUS SYSTEM FUNCTIONS
 -- =============================================================================
 
 -- Start angle tracking when drift begins
-function start_angle_tracking()
+function M.start_angle_tracking()
     vars.angle_tracking_enabled = true
     vars.angle_samples = {}
     vars.angle_sample_count = 0
@@ -21,7 +25,7 @@ function start_angle_tracking()
 end
 
 -- Update angle tracking during drift - WITH LIVE BONUS SYSTEM
-function update_angle_tracking(dt, current_angle)
+function M.update_angle_tracking(dt, current_angle)
     if not vars.angle_tracking_enabled then return end
     
     -- Add sample to tracking array
@@ -43,7 +47,7 @@ function update_angle_tracking(dt, current_angle)
     -- NO TRACKING FOR <30° - these are mundane and deserve no reward
     
     -- LIVE BONUS SYSTEM - Award bonuses immediately when 2.5s threshold reached!
-    check_live_angle_bonuses()
+    M.check_live_angle_bonuses()
     
     -- Debug logging for angle tracking (reduced frequency)
     if vars.angle_sample_count % 120 == 0 then  -- Log every 120 samples (~2 seconds)
@@ -56,7 +60,7 @@ function update_angle_tracking(dt, current_angle)
 end
 
 -- NEW: Check for live angle bonuses during drift
-function check_live_angle_bonuses()
+function M.check_live_angle_bonuses()
     -- Check each range for 2.5s threshold and award bonus immediately
     for range, duration in pairs(vars.angle_range_durations) do
         if duration >= 2.5 then
@@ -64,7 +68,7 @@ function check_live_angle_bonuses()
             
             -- Only award once per segment per range
             if not vars[bonus_key] then
-                award_live_angle_bonus(range, duration)
+                M.award_live_angle_bonus(range, duration)
                 vars[bonus_key] = true  -- Mark as awarded for this segment
             end
         end
@@ -72,7 +76,7 @@ function check_live_angle_bonuses()
 end
 
 -- Award live angle bonus immediately
-function award_live_angle_bonus(range, duration)
+function M.award_live_angle_bonus(range, duration)
     local bonus_points = 0
     local bonus_message = ""
     
@@ -101,7 +105,7 @@ function award_live_angle_bonus(range, duration)
 end
 
 -- Reset live bonus flags for new segment
-function reset_live_bonus_flags()
+function M.reset_live_bonus_flags()
     vars.bonus_awarded_30_45 = false
     vars.bonus_awarded_45_60 = false
     vars.bonus_awarded_60_plus = false
@@ -112,7 +116,7 @@ end
 -- =============================================================================
 
 -- Update crash detection with speed loss monitoring
-function update_crash_detection(dt, speed)
+function M.update_crash_detection(dt, speed)
     -- Update crash cooldown timer
     if vars.crash_cooldown_timer > 0 then
         vars.crash_cooldown_timer = vars.crash_cooldown_timer - dt
@@ -138,7 +142,7 @@ function update_crash_detection(dt, speed)
             -- Significant speed loss indicates crash - INCREASED SENSITIVITY
             if speed_loss >= 15 and speed_loss > 0 then  -- Lost 15+ km/h in 0.1 seconds
                 if vars.is_drifting then
-                    cancel_drift_due_to_crash(speed_loss)
+                    M.cancel_drift_due_to_crash(speed_loss)
                 end
             end
         end
@@ -152,7 +156,7 @@ function update_crash_detection(dt, speed)
 end
 
 -- Cancel drift due to crash detection
-function cancel_drift_due_to_crash(speed_loss)
+function M.cancel_drift_due_to_crash(speed_loss)
     -- CRASH! Cancel drift immediately - NO NOTIFICATION
     vars.is_drifting = false
     vars.current_drift_points = 0
@@ -183,8 +187,8 @@ end
 -- =============================================================================
 
 -- Update rollback exploit detection using wheel rotation analysis
-function update_rollback_detection(dt, car, speed)
-    local wheel_rotation_speed = get_wheel_rotation_intent(car)
+function M.update_rollback_detection(dt, car, speed)
+    local wheel_rotation_speed = M.get_wheel_rotation_intent(car)
     
     -- SMART ROLLBACK EXPLOIT DETECTION - Using wheel rotation intent
     -- Detect if player is trying to roll backward while in forward gear (exploit)
@@ -196,7 +200,7 @@ function update_rollback_detection(dt, car, speed)
             vars.backward_movement_timer = vars.backward_movement_timer + dt
             
             if vars.backward_movement_timer >= vars.backward_detection_threshold then
-                cancel_drift_due_to_rollback()
+                M.cancel_drift_due_to_rollback()
             end
         else
             vars.backward_movement_timer = 0.0  -- Reset if not moving backward
@@ -207,7 +211,7 @@ function update_rollback_detection(dt, car, speed)
 end
 
 -- Determine wheel rotation intent from RPM and gear
-function get_wheel_rotation_intent(car)
+function M.get_wheel_rotation_intent(car)
     local wheel_rotation_speed = 0
     
     pcall(function()
@@ -231,7 +235,7 @@ function get_wheel_rotation_intent(car)
 end
 
 -- Cancel drift due to rollback exploit
-function cancel_drift_due_to_rollback()
+function M.cancel_drift_due_to_rollback()
     -- ROLLBACK EXPLOIT DETECTED! Cancel drift
     if vars.is_drifting then
         vars.is_drifting = false
@@ -260,7 +264,7 @@ end
 -- =============================================================================
 
 -- Update pit detection and handle pit entry/exit
-function update_pit_detection(car, speed)
+function M.update_pit_detection(car, speed)
     local car_pos = car.position
     
     -- Establish pit area when car is stationary at low speed
@@ -291,27 +295,27 @@ end
 -- =============================================================================
 
 -- Update reverse entry and spinout detection
-function update_reverse_entry_detection(dt, angle, speed)
+function M.update_reverse_entry_detection(dt, angle, speed)
     -- GENERAL SPINOUT DETECTION - covers all spinout scenarios
     if vars.is_drifting and speed > 30 and angle > 75 then
         if not vars.reverse_entry_active then
-            start_reverse_entry_tracking(angle, speed, "POTENTIAL SPINOUT")
+            M.start_reverse_entry_tracking(angle, speed, "POTENTIAL SPINOUT")
         end
     end
     
     -- REVERSE ENTRY DETECTION - high-speed skill move
     if not vars.reverse_entry_active and speed > vars.reverse_entry_min_speed and angle > 75 then
-        start_reverse_entry_tracking(angle, speed, "REVERSE ENTRY")
+        M.start_reverse_entry_tracking(angle, speed, "REVERSE ENTRY")
     end
     
     -- Handle active reverse entry situation
     if vars.reverse_entry_active then
-        handle_active_reverse_entry(dt, angle, speed)
+        M.handle_active_reverse_entry(dt, angle, speed)
     end
 end
 
 -- Start tracking a reverse entry or spinout situation
-function start_reverse_entry_tracking(angle, speed, situation_type)
+function M.start_reverse_entry_tracking(angle, speed, situation_type)
     vars.reverse_entry_active = true
     vars.reverse_entry_timer = 0.0
     vars.reverse_entry_awarded = false
@@ -321,7 +325,7 @@ function start_reverse_entry_tracking(angle, speed, situation_type)
 end
 
 -- Handle an active reverse entry situation
-function handle_active_reverse_entry(dt, angle, speed)
+function M.handle_active_reverse_entry(dt, angle, speed)
     vars.reverse_entry_timer = vars.reverse_entry_timer + dt
     
     -- Track maximum angle reached
@@ -331,21 +335,21 @@ function handle_active_reverse_entry(dt, angle, speed)
     
     -- Check for successful recovery
     if angle < 75 and angle > vars.drift_threshold and speed > vars.min_speed and not vars.reverse_entry_awarded then
-        handle_reverse_entry_recovery(speed)
+        M.handle_reverse_entry_recovery(speed)
     end
     
     -- Check for timeout or failure
     if vars.reverse_entry_timer >= vars.reverse_entry_grace_period or 
        (angle < vars.drift_threshold and speed < vars.min_speed) then
         if not vars.reverse_entry_awarded then
-            handle_reverse_entry_failure(speed)
+            M.handle_reverse_entry_failure(speed)
         end
-        end_reverse_entry_tracking()
+        M.end_reverse_entry_tracking()
     end
 end
 
 -- Handle successful recovery from reverse entry
-function handle_reverse_entry_recovery(speed)
+function M.handle_reverse_entry_recovery(speed)
     if speed >= vars.reverse_entry_min_speed then
         -- High-speed recovery = reverse entry skill bonus
         local excess_angle = vars.reverse_entry_max_angle - 75
@@ -364,29 +368,29 @@ function handle_reverse_entry_recovery(speed)
 end
 
 -- Handle failure to recover from reverse entry
-function handle_reverse_entry_failure(speed)
+function M.handle_reverse_entry_failure(speed)
     if speed >= vars.reverse_entry_min_speed then
         -- High-speed spinout = reverse entry failure (with penalty tracking)
         vars.reverse_entry_failures = vars.reverse_entry_failures + 1
         
-        cancel_drift_completely()
+        M.cancel_drift_completely()
         
         -- Check for 3-failure penalty
         if vars.reverse_entry_failures >= vars.max_failures_before_penalty then
-            apply_three_failure_penalty()
+            M.apply_three_failure_penalty()
         else
-            apply_single_failure_notification()
+            M.apply_single_failure_notification()
         end
     else
         -- Lower-speed spinout = just cancel drift, no penalty tracking
-        cancel_drift_completely()
+        M.cancel_drift_completely()
         utils.set_notification("💫 SPINOUT! 💫")
         utils.debug_log(string.format("Low-speed spinout - drift cancelled at %.0f km/h", speed), "SPINOUT")
     end
 end
 
 -- Cancel drift completely (used by spinout detection)
-function cancel_drift_completely()
+function M.cancel_drift_completely()
     vars.is_drifting = false
     vars.current_drift_points = 0
     vars.current_segment_points = 0
@@ -407,7 +411,7 @@ function cancel_drift_completely()
 end
 
 -- Apply three-failure penalty
-function apply_three_failure_penalty()
+function M.apply_three_failure_penalty()
     local penalty_amount = math.floor(vars.total_banked_points * 0.5)
     vars.total_banked_points = vars.total_banked_points - penalty_amount
     vars.reverse_entry_failures = 0  -- Reset failure counter
@@ -418,7 +422,7 @@ function apply_three_failure_penalty()
 end
 
 -- Apply single failure notification
-function apply_single_failure_notification()
+function M.apply_single_failure_notification()
     local fail_text = ""
     if vars.reverse_entry_failures == 1 then
         fail_text = "💀 FAIL ONE! 💀"
@@ -431,7 +435,7 @@ function apply_single_failure_notification()
 end
 
 -- End reverse entry tracking
-function end_reverse_entry_tracking()
+function M.end_reverse_entry_tracking()
     vars.reverse_entry_active = false
     vars.reverse_entry_timer = 0.0
     vars.reverse_entry_max_angle = 0
@@ -442,7 +446,7 @@ end
 -- =============================================================================
 
 -- Get comprehensive car data for drift detection
-function get_car_data(car, speed)
+function M.get_car_data(car, speed)
     local angle, angle_with_direction, lateral_velocity = utils.calculate_slip_angle(car)
     local angular_velocity = utils.get_car_angular_velocity(car)
     local gear = utils.get_safe_gear(car)
@@ -458,7 +462,7 @@ function get_car_data(car, speed)
 end
 
 -- Check if car is actively drifting
-function check_active_drifting(car_data, speed)
+function M.check_active_drifting(car_data, speed)
     return speed > vars.min_speed and 
            car_data.angle > vars.drift_threshold and 
            vars.crash_cooldown_timer <= 0 and
@@ -467,18 +471,18 @@ function check_active_drifting(car_data, speed)
 end
 
 -- Handle drift start or direction change
-function handle_drift_start_or_change(car_data, speed)
+function M.handle_drift_start_or_change(car_data, speed)
     local current_direction = utils.get_drift_direction(car_data.angle, car_data.angle_with_direction)
     
     if not vars.is_drifting then
-        start_new_drift(current_direction, speed)
+        M.start_new_drift(current_direction, speed)
     elseif current_direction ~= 0 and current_direction ~= vars.drift_direction then
-        handle_direction_change(current_direction)
+        M.handle_direction_change(current_direction)
     end
 end
 
 -- Start a new drift
-function start_new_drift(current_direction, speed)
+function M.start_new_drift(current_direction, speed)
     vars.is_drifting = true
     vars.current_drift_points = 0
     vars.current_segment_points = 0
@@ -495,16 +499,16 @@ function start_new_drift(current_direction, speed)
     vars.reset_drift_tracking()
     
     -- Reset live bonus flags
-    reset_live_bonus_flags()
+    M.reset_live_bonus_flags()
     
     -- Start angle tracking
-    start_angle_tracking()
+    M.start_angle_tracking()
     
     utils.debug_log(string.format("DRIFT STARTED! Speed: %.0f km/h", speed), "DRIFT")
 end
 
 -- Handle direction change during drift - NO MORE MULTIPLIER SYSTEM
-function handle_direction_change(current_direction)
+function M.handle_direction_change(current_direction)
     -- NO MORE END-OF-SEGMENT ANGLE BONUS - Live system handles this now
     
     -- Bank current segment for Pure Skill tracking
@@ -529,14 +533,14 @@ function handle_direction_change(current_direction)
     vars.reset_drift_tracking()
     
     -- Reset live bonus flags for new segment
-    reset_live_bonus_flags()
+    M.reset_live_bonus_flags()
     
     -- START ANGLE TRACKING FOR NEW SEGMENT
-    start_angle_tracking()
+    M.start_angle_tracking()
 end
 
 -- Update drift progression (smoke, timers, etc.)
-function update_drift_progression(dt)
+function M.update_drift_progression(dt)
     vars.drift_end_timer = 0.0
     
     -- Update smoke progression
@@ -558,23 +562,23 @@ function update_drift_progression(dt)
     local car = ac.getCar(0)
     if car then
         local angle, _, _ = utils.calculate_slip_angle(car)
-        update_angle_tracking(dt, angle)
+        M.update_angle_tracking(dt, angle)
     end
 end
 
 -- Handle drift end
-function handle_drift_end(dt)
+function M.handle_drift_end(dt)
     if vars.is_drifting then
         vars.drift_end_timer = vars.drift_end_timer + dt
         
         if vars.drift_end_timer >= vars.drift_end_delay then
-            end_drift()
+            M.end_drift()
         end
     end
 end
 
 -- End the current drift and bank points - NO MORE MULTIPLIER
-function end_drift()
+function M.end_drift()
     local records = require('modules/records')  -- Late require to avoid circular dependency
     
     -- NO MORE END-OF-DRIFT ANGLE BONUS - Live system already awarded them
@@ -600,11 +604,11 @@ function end_drift()
     end
     
     -- Reset all drift variables
-    reset_drift_variables()
+    M.reset_drift_variables()
 end
 
 -- Reset all drift-related variables
-function reset_drift_variables()
+function M.reset_drift_variables()
     vars.current_drift_points = 0
     vars.current_segment_points = 0
     vars.drift_direction = 0
@@ -628,6 +632,8 @@ end
 -- MODULE INITIALIZATION
 -- =============================================================================
 
-function initialize()
+function M.initialize()
     utils.debug_log("Detection module initialized with Live Angle Bonus System", "INIT")
 end
+
+return M
