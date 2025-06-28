@@ -1,6 +1,12 @@
 -- modules/display.lua - FIXED with perfect centering and vertical control
 -- Save as: assettocorsa/apps/lua/streetdriftarcade/modules/display.lua
 
+local M = {}
+local vars = require('modules/variables')
+local utils = require('modules/utilities')
+local scoring = require('modules/scoring')
+local records = require('modules/records')
+local anti_farming = require('modules/anti_farming')
 
 -- =============================================================================
 -- PROPORTIONAL SCALING SYSTEM
@@ -93,7 +99,7 @@ local ui_config = {}
 local current_scale_factor = 1.0
 
 -- Calculate scaling factor based on screen resolution
-function calculate_scale_factor(screen_width, screen_height)
+local function calculate_scale_factor(screen_width, screen_height)
     -- Use the smaller dimension to ensure UI fits on screen
     local width_ratio = screen_width / REFERENCE_WIDTH
     local height_ratio = screen_height / REFERENCE_HEIGHT
@@ -108,7 +114,7 @@ function calculate_scale_factor(screen_width, screen_height)
 end
 
 -- Apply scaling to all UI configuration values
-function apply_scaling(scale_factor)
+local function apply_scaling(scale_factor)
     current_scale_factor = scale_factor
     
     -- Scale all size values
@@ -127,7 +133,7 @@ function apply_scaling(scale_factor)
 end
 
 -- Initialize scaling for given screen dimensions
-function set_screen_dimensions(screen_width, screen_height)
+function M.set_screen_dimensions(screen_width, screen_height)
     local scale_factor = calculate_scale_factor(screen_width, screen_height)
     apply_scaling(scale_factor)
     
@@ -141,7 +147,7 @@ end
 -- =============================================================================
 
 -- Calculate scaled positions based on screen size
-function get_scaled_positions(screen_width, screen_height)
+local function get_scaled_positions(screen_width, screen_height)
     local scale = current_scale_factor
     
     return {
@@ -163,7 +169,7 @@ end
 -- =============================================================================
 
 -- Helper function to draw text with scaled shadow
-function draw_text_with_shadow(font, text, size, position, color, shadow_offset)
+local function draw_text_with_shadow(font, text, size, position, color, shadow_offset)
     shadow_offset = shadow_offset or math.max(1, 2 * current_scale_factor)
     local shadow_color = rgbm(0, 0, 0, 0.6)
     
@@ -179,7 +185,7 @@ function draw_text_with_shadow(font, text, size, position, color, shadow_offset)
 end
 
 -- Helper function to get perfectly centered X position for text
-function get_centered_x_position(text, font, size, screen_width, center_offset)
+local function get_centered_x_position(text, font, size, screen_width, center_offset)
     center_offset = center_offset or 0
     
     ui.pushDWriteFont(font)
@@ -190,7 +196,7 @@ function get_centered_x_position(text, font, size, screen_width, center_offset)
 end
 
 -- Clean notification text by removing point values
-function clean_notification_text(notification_text)
+local function clean_notification_text(notification_text)
     if not notification_text or notification_text == "" then
         return ""
     end
@@ -202,7 +208,7 @@ function clean_notification_text(notification_text)
 end
 
 -- Update animation timers
-function update_animations(dt)
+function M.update_animations(dt)
     if vars.pb_drift_animation_timer > 0 then
         vars.pb_drift_animation_timer = vars.pb_drift_animation_timer - dt
     end
@@ -214,12 +220,8 @@ function update_animations(dt)
     end
 end
 
-end
-
-ac.log("🔍 update_animations function created: " .. tostring(update_animations))
-
 -- TOP-LEFT: Total Points (with individual positioning controls)
-function render_top_left_total_points(screen_width, screen_height)
+local function render_top_left_total_points(screen_width, screen_height)
     local positions = get_scaled_positions(screen_width, screen_height)
     local pos = positions.top_left
     
@@ -327,7 +329,7 @@ function render_top_left_total_points(screen_width, screen_height)
 end
 
 -- TOP-CENTER: Notifications and Angle Bonus System (FIXED CENTERING & VERTICAL)
-function render_top_center_notifications(screen_width, screen_height)
+local function render_top_center_notifications(screen_width, screen_height)
     -- Calculate position with proper scaling
     local center_x = screen_width / 2 + (ui_config.notification_center_offset or 0)
     local pos_y = ui_config.notification_y_position or (50 * current_scale_factor)
@@ -375,7 +377,7 @@ function render_top_center_notifications(screen_width, screen_height)
 end
 
 -- BOTTOM-LEFT: Personal Records (with individual positioning controls)
-function render_bottom_left_records(screen_width, screen_height)
+local function render_bottom_left_records(screen_width, screen_height)
     -- Calculate position directly from base config (like we do for top-center)
     local pos = vec2(ui_config.bottom_left_x_position, screen_height - ui_config.bottom_left_y_from_bottom)
     local shadow_offset = math.max(1, 3 * current_scale_factor)
@@ -454,7 +456,7 @@ function render_bottom_left_records(screen_width, screen_height)
 end
 
 -- BOTTOM-RIGHT: Status Information (with individual positioning controls)
-function render_bottom_right_status(screen_width, screen_height)
+local function render_bottom_right_status(screen_width, screen_height)
     -- Calculate position directly from base config (like we do for top-center)
     local pos = vec2(screen_width - ui_config.bottom_right_x_from_right, screen_height - ui_config.bottom_right_y_from_bottom)
     local shadow_offset = math.max(1, 3 * current_scale_factor)
@@ -511,7 +513,7 @@ end
 -- MAIN FULL-SCREEN OVERLAY FUNCTION (Updated)
 -- =============================================================================
 
-function render_fullscreen_overlay(screen_width, screen_height)
+function M.render_fullscreen_overlay(screen_width, screen_height)
     if ui.dwriteDrawText then
         render_top_left_total_points(screen_width, screen_height)
         render_top_center_notifications(screen_width, screen_height)
@@ -538,15 +540,15 @@ end
 -- UTILITY FUNCTIONS (Simplified)
 -- =============================================================================
 
-function get_ui_config()
+function M.get_ui_config()
     return ui_config
 end
 
-function get_scale_factor()
+function M.get_scale_factor()
     return current_scale_factor
 end
 
-function get_scaling_info()
+function M.get_scaling_info()
     return {
         reference_resolution = string.format("%dx%d", REFERENCE_WIDTH, REFERENCE_HEIGHT),
         scale_factor = current_scale_factor,
@@ -558,8 +560,10 @@ function get_scaling_info()
     }
 end
 
-function initialize()
+function M.initialize()
     -- Initialize with default scaling (will be updated when screen size is set)
     apply_scaling(1.0)
     utils.debug_log("Display module initialized - edit notification_y_position and notification_center_offset in base_ui_config to adjust positioning", "INIT")
 end
+
+return M
