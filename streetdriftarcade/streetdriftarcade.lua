@@ -1,8 +1,13 @@
--- Version 0.7
 -- streetdriftarcade.lua - UPDATED with proportional scaling integration
 -- Save as: assettocorsa/apps/lua/streetdriftarcade/streetdriftarcade.lua
 
-  -- Now handles ALL visual rendering with scaling
+local vars = require('modules/variables')
+local utilities = require('modules/utilities')
+local detection = require('modules/detection')
+local scoring = require('modules/scoring')
+local anti_farming = require('modules/anti_farming')
+local records = require('modules/records')
+local display = require('modules/display')  -- Now handles ALL visual rendering with scaling
 
 -- Full-screen overlay variables
 local screen_width = 1920  -- Default, will be detected
@@ -13,7 +18,7 @@ local overlay_initialized = false
 -- SCREEN DETECTION WITH SCALING
 -- =============================================================================
 
-function detect_screen_size()
+local function detect_screen_size()
     -- Try to get screen dimensions from AC
     local sim = ac.getSim()
     if sim and sim.windowWidth and sim.windowHeight then
@@ -86,7 +91,7 @@ end
 
 function script.update(dt)
     -- Update animation timers
-    update_animations(dt)
+    display.update_animations(dt)
     
     -- Update pulse and notification timers
     utilities.update_timers(dt)
